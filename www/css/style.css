@@ -12,6 +12,11 @@
 	background-color: rgba(0,0,0,.5);
 }
 
+.centu{
+  margin-left: auto;
+  margin-right: auto;
+}
+
 ion-view{
 	background-image: url(http://www.bruna.cat/imgdownload/full/6/69263/anime-desktop-wallpaper-hd.jpg);
 	background-size: cover;
@@ -365,3 +370,4 @@ ion-view{
 .alinearcantidad {
   text-align:right;
 }
+
