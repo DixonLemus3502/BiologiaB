@@ -5,273 +5,116 @@ angular.module('starter.controllers', [])
 .controller('TablaCtrl', function($scope) {})
 
 .controller('GameCtrl', function($scope) {
-  let cardsArray = ['fa-anchor', 'fa-anchor', 'fa-bicycle', 'fa-bolt', 'fa-cube', 'fa-diamond', 'fa-diamond', 'fa-plane', 'fa-leaf', 'fa-bomb', 'fa-leaf', 'fa-bomb', 'fa-bolt', 'fa-bicycle', 'fa-plane', 'fa-cube'];
+    var BoxOpened = "";
+    var ImgOpened = "";
+    var Counter = 0;
+    var ImgFound = 0;
 
-let lock = false;
-let firstClick = null, secondClick = null;
-let li1 = null, li2 = null; //element of firstClick and secondClick
-let score = document.querySelector('#fin-score');
-//move(s) variables
-let moves = 0;
-let lastMoves = document.querySelector('#fin-moves');
-let lastTime = document.querySelector('#fin-time');
-let counter = document.querySelector('.moves');
-let machedCard = 0;
+    var Source = "#boxcard";
 
-// star icon variable
-const allStars = document.querySelectorAll('.fa-star');
-console.log(allStars, "STAR");
+    var ImgSource = [
+      "http://img5.uploadhouse.com/fileuploads/17699/176992640c06707c66a5c0b08a2549c69745dc2c.png",
+      "http://img6.uploadhouse.com/fileuploads/17699/17699263b01721074bf094aa3bc695aa19c8d573.png",
+      "http://img6.uploadhouse.com/fileuploads/17699/17699262833250fa3063b708c41042005fda437d.png",
+      "http://img9.uploadhouse.com/fileuploads/17699/176992615db99bb0fd652a2e6041388b2839a634.png",
+      "http://img4.uploadhouse.com/fileuploads/17699/176992601ca0f28ba4a8f7b41f99ee026d7aaed8.png",
+      "http://img3.uploadhouse.com/fileuploads/17699/17699259cb2d70c6882adc285ab8d519658b5dd7.png",
+      "http://img2.uploadhouse.com/fileuploads/17699/1769925824ea93cbb77ba9e95c1a4cec7f89b80c.png",
+      "http://img7.uploadhouse.com/fileuploads/17699/1769925708af4fb3c954b1d856da1f4d4dcd548a.png",
+      "http://img9.uploadhouse.com/fileuploads/17699/176992568b759acd78f7cbe98b6e4a7baa90e717.png",
+      "http://img9.uploadhouse.com/fileuploads/17699/176992554c2ca340cc2ea8c0606ecd320824756e.png"
+    ];
 
-// Time variables
-let time = document.querySelector('.displayTime');
-let startGame = 0;
-let gameInterval;
-
-let modal = document.querySelector('.pop-up')
-
-const buttonRestart = document.getElementsByClassName('restart');
-
-// <<<<<< End of objects and variables declaration section <<<<<<
-
-// >>>>>> Functions declaration section >>>>>>
-
-
-// Shuffle function from http://stackoverflow.com/a/2450976
-function shuffle(array) {
-    let currentIndex = array.length,
-        temporaryValue, randomIndex;
-
-    while (currentIndex !== 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
+function RandomFunction(MaxValue, MinValue) {
+        return Math.round(Math.random() * (MaxValue - MinValue) + MinValue);
     }
+    
+function ShuffleImages() {
+    var ImgAll = $(Source).children();
+    var ImgThis = $(Source + " div:first-child");
+    var ImgArr = new Array();
 
-    return array;
+    for (var i = 0; i < ImgAll.length; i++) {
+        ImgArr[i] = $("#" + ImgThis.attr("id") + " img").attr("src");
+        ImgThis = ImgThis.next();
+    }
+    
+        ImgThis = $(Source + " div:first-child");
+    
+    for (var z = 0; z < ImgAll.length; z++) {
+    var RandomNumber = RandomFunction(0, ImgArr.length - 1);
+
+        $("#" + ImgThis.attr("id") + " img").attr("src", ImgArr[RandomNumber]);
+        ImgArr.splice(RandomNumber, 1);
+        ImgThis = ImgThis.next();
+    }
 }
 
+    $scope.ResetGame = function() {
+    ShuffleImages();
+    $(Source + " div img").hide();
+    $(Source + " div").css("visibility", "visible");
+    Counter = 0;
+    $("#success").remove();
+    $("#counter").html("" + Counter);
+    BoxOpened = "";
+    ImgOpened = "";
+    ImgFound = 0;
+    return false;
+}
 
-//Timer inspired by https://stackoverflow.com/questions/20618355/the-simplest-possible-javascript-countdown-timer
-function timer() {
-    let minutes = 0;
-    let seconds = 0;
-    gameInterval = setInterval(function () {
-        seconds = parseInt(seconds, 10) + 1;
-        minutes = parseInt(minutes, 10);
-        if (seconds >= 60) {
-            minutes += 1;
-            seconds = 0;
+function OpenCard() {
+    var id = $(this).attr("id");
+
+    if ($("#" + id + " img").is(":hidden")) {
+        $(Source + " div").unbind("click", OpenCard);
+    
+        $("#" + id + " img").slideDown('fast');
+
+        if (ImgOpened == "") {
+            BoxOpened = id;
+            ImgOpened = $("#" + id + " img").attr("src");
+            setTimeout(function() {
+                $(Source + " div").bind("click", OpenCard)
+            }, 300);
+        } else {
+            CurrentOpened = $("#" + id + " img").attr("src");
+            if (ImgOpened != CurrentOpened) {
+                setTimeout(function() {
+                    $("#" + id + " img").slideUp('fast');
+                    $("#" + BoxOpened + " img").slideUp('fast');
+                    BoxOpened = "";
+                    ImgOpened = "";
+                }, 400);
+            } else {
+                $("#" + id + " img").parent().css("visibility", "hidden");
+                $("#" + BoxOpened + " img").parent().css("visibility", "hidden");
+                ImgFound++;
+                BoxOpened = "";
+                ImgOpened = "";
+            }
+            setTimeout(function() {
+                $(Source + " div").bind("click", OpenCard)
+            }, 400);
         }
+        Counter++;
+        $("#counter").html("" + Counter);
 
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-
-        time.innerHTML = minutes + ":" + seconds;
-        lastTime.textContent = time.textContent;
-        // console.log(time,"hellooooo are you there????");
-    }, 1000);
+        if (ImgFound == ImgSource.length) {
+            $("#counter").prepend('<span id="success">Felicidades Encontraste Todas...</span>');
+        }
+    }
 }
 
-function endOfGame() {
-    clearInterval(gameInterval);
-}
+$(function() {
 
-
-function displaySymbol(el) {
-    el.classList.add("open");
-    el.classList.add("show");
-}
-
-
-function closeUnmatchedCards() {
-    let els = document.getElementsByClassName('unMatch');
-    Array.from(els).forEach(el => {
-        el.classList.remove('unMatch');
-        el.classList.remove('show');
-        el.classList.remove('open');
+for (var y = 1; y < 3 ; y++) {
+    $.each(ImgSource, function(i, val) {
+        $(Source).append("<div id=card" + y + i + "><img src=" + val + " />");
     });
 }
-
-
-function restartClick() {
-    firstClick = null;
-    secondClick = null;
-}
-
-function changeRating() {
-    // console.log(moves, "where are youuuuuuuuuuuuuuu???")
-    if (moves === 10) {
-        document.querySelector('.cup-gold').classList.remove('hide');
-        return true;
-    } else if (moves === 16) {
-        allStars[0].classList.add('hide')
-        allStars[3].classList.add('hide');
-        document.querySelector('.cup-silver').classList.remove('hide');
-        document.querySelector('.cup-gold').classList.add('hide');
-    } else if (moves === 20) {
-        allStars[1].classList.add('hide');
-        allStars[4].classList.add('hide');
-        document.querySelector('.cup-bronze').classList.remove('hide');
-        document.querySelector('.cup-silver').classList.add('hide');
-
-    }
-    // console.log(allStars, "are you my stars??!");
-}
-
-
-function moveCounter() {
-    moves++;
-    counter.innerHTML = moves;
-    lastMoves.innerHTML = moves;
-// setting rates based on moves
-    if (moves <= 20 && moves !== 0) {
-        changeRating()
-    }
-}
-
-
-function restarValue() {
-    // show again stars
-    for (let i = 0; i < 3; i++) {
-        allStars[i].classList.remove('hide');
-    }
-    //show again cups
-    for (let i = 0; i < 3; i++) {
-        allStars[i].classList.remove('hide');
-    }
-
-    // empty matched cards variables
-    machedCard = 0;
-    startGame = 0;
-    moves = 0;
-    counter.textContent = 0;
-    li1 = null;
-    li2 = null;
-    // hide the modal
-    modal.classList.remove('showed');
-    modal.classList.add('hide');
-}
-
-//****Game logic****
-
-
-// newCard function
-const newCard = cardClass => {
-    // we create a new li element with a class "card"
-    let li = document.createElement("li");
-    li.classList.add("card");
-    // we create a "i" element called icon and we applied to it a "fa" class, then we applied a class form the array of cards
-    let icon = document.createElement("i");
-    li.appendChild(icon);
-    icon.classList.add("fa");
-    icon.classList.add(cardClass);
-    return li;
-};
-
-
-const pickACard = card => {
-
-    card.addEventListener('click', function (e) {
-        // we start the time at the first click
-        if (startGame === 0) {
-            timer();
-            startGame++;
-        }
-
-        let li = e.currentTarget;
-        //if the card is already open ignore it
-        if (lock || li.classList.contains('open') && li.classList.contains('show')) {
-            // console.log("this card is already open");
-            return true;
-        }
-
-        let icon = li.getElementsByClassName('fa')[0].className;
-
-        if (firstClick === null && secondClick === null) {
-
-            firstClick = icon;
-            li1 = li; // element of firstClick
-            // console.log("firstClick", firstClick);
-
-        } else if (firstClick !== null && secondClick === null) {
-            secondClick = icon;
-            li2 = li; // element secondClick
-            // console.log(secondClick, "secondClick");
-
-            if (firstClick === secondClick) {
-                li1.classList.add('match');
-                li1.classList.add('true');
-                li2.classList.add('match');
-                li2.classList.add('true');
-                score.textContent += 5;
-                machedCard++;
-                if (machedCard === 8) {
-                    endOfGame()
-                    modal.classList.remove('hide')
-                    modal.classList.add('showed')
-                }
-
-                // console.log('Right Choice ');
-            } else {
-                // console.log('Wrong Choice ');
-                li1.classList.add('unMatch');
-                li2.classList.add('unMatch');
-                score.textContent -= 1;
-                setTimeout(function () {
-                    closeUnmatchedCards()
-                }, 750)
-            }
-            moveCounter();
-            restartClick();
-        }
-        displaySymbol(li);
-    })
-};
-
-
-function gameStart() {
-    // we store in a variable our "ul" element with inside the class "desk" and we store inside it our "li" element, created before.
-    // list[0] because one the console appear as an object
-    // we restart the variables
-    // Show again the stars
-    restarValue();
-    // we restart the click
-    restartClick();
-    // // we stop the time
-    endOfGame();
-    //  we clear the time string
-    time.innerHTML = '00:00';
-    // we grab all the cards
-    let list = document.getElementsByClassName("deck");
-
-    // we empty the current board of cards
-    list[0].innerHTML = '';
-
-    // We first shuffle the array of cards
-    let cardsShuffled = shuffle(cardsArray);
-
-    for (let card of cardsShuffled) {
-        let li = newCard(card);
-        list[0].appendChild(li);
-    }
-
-    let cards = list[0].getElementsByClassName("card") // it's an html collection
-    for (let card of cards) {
-
-        pickACard(card);
-    }
-
-}
-
-gameStart();
-
-
-Array.from(buttonRestart).forEach(el => {
-    el.addEventListener('click', function () {
-        gameStart()
-    })
+    $(Source + " div").click(OpenCard);
+    ShuffleImages();
 });
 })
 
