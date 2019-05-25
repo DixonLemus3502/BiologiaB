@@ -102,6 +102,7 @@ function OpenCard() {
 
         if (ImgFound == ImgSource.length) {
             $("#counter").prepend('<span id="success">Felicidades Encontraste Todas...</span>');
+      
         }
     }
 }
